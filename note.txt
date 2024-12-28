@@ -1,0 +1,85 @@
+-------------Sistem Manajemen User Gym----------------
+
+Run aplikasi: buka cmd, masuk ke folder aplikasi, ketik "npm run start", lalu gunakan postman untuk testing.
+
+Pattern yang digunakan:
+1. Creational (Factory Method).
+Factory Pattern digunakan untuk membuat objek tanpa harus menentukan kelas yang tepat untuk instansiasi. Pola ini membantu dalam pembuatan objek berdasarkan logika tertentu, sehingga kode menjadi lebih modular dan terorganisir.
+
+Implementasi source code:
+// userFactory.js
+const UserFactory = {
+  createUser: (name, role) => {
+    return { name, role };
+  },
+};
+
+module.exports = UserFactory;
+
+Di sini, UserFactory berfungsi untuk membuat objek user dengan atribut tertentu (name dan role). Dengan menggunakan UserFactory.createUser, pembuatan user menjadi lebih terstruktur.
+
+2. Creational (Singleton).
+Singleton Pattern memastikan bahwa hanya ada satu instance dari suatu kelas yang dibuat. Meskipun tidak secara eksplisit terlihat dalam kode, users dalam userModel.js dapat dianggap sebagai implementasi sederhana dari Singleton karena data pengguna didefinisikan sekali dan digunakan di seluruh aplikasi.
+
+Implementasi source code:
+// userModel.js
+const users = []; // Array untuk menyimpan data pengguna
+
+module.exports = users;
+
+Array users ini hanya dibuat satu kali dan digunakan bersama di semua controller. Dengan cara ini, data pengguna tersimpan secara global dan konsisten di seluruh aplikasi.
+
+3. Structural (Proxy).
+Proxy Pattern menyediakan pengganti atau perantara untuk mengontrol akses ke objek. Dalam hal ini, proxy digunakan untuk membatasi akses ke fungsi-fungsi tertentu berdasarkan role pengguna.
+
+Implementasi source code:
+// userProxy.js
+class UserProxy {
+  constructor(role) {
+    this.role = role; // Role pengguna saat ini
+  }
+
+  createUser(req, res) {
+    if (this.role !== 'admin') {
+      return res.status(403).json({ message: 'Forbidden: Only admins can create users' });
+    }
+    return userController.createUser(req, res);
+  }
+}
+
+UserProxy mengontrol akses ke metode createUser, updateUserById, deleteUserById, dan deleteAllUsers. Hanya pengguna dengan role 'admin' yang diizinkan untuk menjalankan operasi tertentu.
+
+4. Architectural (MVC).
+Pola MVC memisahkan aplikasi menjadi tiga komponen utama:
+
+a.)Model: Berisi data dan logika aplikasi.
+b.)View: Berisi antarmuka pengguna.
+c.)Controller: Berfungsi sebagai penghubung antara model dan view.
+Implementasi source code:
+
+a.)Model:
+// userModel.js
+const users = []; // Array untuk menyimpan data pengguna
+
+module.exports = users;
+
+Model bertugas menyimpan data pengguna dalam bentuk array users.
+
+b.)Controller:
+// userController.js
+const users = require('../models/userModel');
+const getAllUsers = (req, res) => {
+  res.json(users);
+};
+
+Controller bertugas menangani logika aplikasi, seperti mendapatkan semua pengguna, membuat pengguna baru, memperbarui, dan menghapus pengguna.
+
+c.)View: Dalam konteks API ini, view berupa respon JSON yang dikirimkan ke client. Misalnya:
+res.json({ message: 'User created', user });
+
+Kesimpulan:
+Pola design pattern yang digunakan dalam aplikasi meliputi:
+1.Factory Pattern untuk pembuatan objek user.
+2.Proxy Pattern untuk pengaturan akses berdasarkan role pengguna.
+3.MVC Pattern untuk memisahkan logika aplikasi (Model, View, Controller).
+4.Singleton Pattern untuk memastikan data users konsisten di seluruh aplikasi.
